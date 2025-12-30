@@ -39,8 +39,6 @@ EmulatorPkg_Win_VS_           | IA32            |em32d|       |em32r|       |em3
 |                             | X64 FULL        |em64fd|      |em64fr|      |em64fn|
 OvmfPkg_Win_VS_               | IA32            |op32d|       |op32r|       |op32n|
 |                             | X64             |op64d|       |op64r|       |op64n|
-|                             | IA32 X64        |op3264d|     |op3264r|     |op3264n|
-|                             | IA32 X64 FULL   |op3264fd|    |op3264fr|    **N/A**
 ============================= ================= ============= ============= ==============
 
 Ubuntu 24.04
@@ -50,15 +48,12 @@ Ubuntu 24.04
  Toolchain                    CONFIG            DEBUG         RELEASE       NOOPT
 ============================= ================= ============= ============= ==============
 ArmVirtPkg_Ubuntu_GCC_        | AARCH64         |avAArch64du| |avAArch64ru| |avAArch64nu|
-|                             | ARM             |avArmdu|     |avArmru|     |avArmnu|
 EmulatorPkg_Ubuntu_GCC_       | IA32            **N/A**       **N/A**       **N/A**
 |                             | X64             |em64du|      |em64ru|      |em64nu|
 |                             | IA32 FULL       **N/A**       **N/A**       **N/A**
 |                             | X64 FULL        |em64fdu|     |em64fru|     |em64fnu|
 OvmfPkg_Ubuntu_GCC_           | IA32            |op32du|      |op32ru|      |op32nu|
 |                             | X64             |op64du|      |op64ru|      |op64nu|
-|                             | IA32 X64        |op3264du|    |op3264ru|    |op3264nu|
-|                             | IA32 X64 FULL   |op3264fdu|   |op3264fru|   **N/A**
 ============================= ================= ============= ============= ==============
 
 |TCBZ_2639|_ - EmulatorPkg Ubuntu GCC5 Segfaults during execution.
@@ -84,9 +79,6 @@ licenses:
 -  `CryptoPkg\Library\BaseCryptLib\SysCall\inet_pton.c <CryptoPkg\Library\BaseCryptLib\SysCall\inet_pton.c>`__
 -  `CryptoPkg\Library\Include\crypto\dso_conf.h <https://github.com/openssl/openssl/blob/e2e09d9fba1187f8d6aafaa34d4172f56f1ffb72/LICENSE>`__
 -  `CryptoPkg\Library\Include\openssl\opensslconf.h <https://github.com/openssl/openssl/blob/e2e09d9fba1187f8d6aafaa34d4172f56f1ffb72/LICENSE>`__
--  `EmbeddedPkg/Library/FdtLib <EmbeddedPkg/Library/FdtLib/fdt.c>`__.  (EDK II uses BSD License)
--  `EmbeddedPkg/Include/fdt.h <EmbeddedPkg/Include/fdt.h>`__.  (EDK II uses BSD Licence)
--  `EmbeddedPkg/Include/libfdt.h <EmbeddedPkg/Include/libfdt.h>`__.  (EDK II uses BSD License)
 -  `MdeModulePkg/Library/LzmaCustomDecompressLib <MdeModulePkg/Library/LzmaCustomDecompressLib/LZMA-SDK-README.txt>`__
 -  `OvmfPkg <OvmfPkg/License.txt>`__
 
@@ -353,17 +345,3 @@ use.
 .. |op64ru| image:: https://dev.azure.com/tianocore/edk2-ci/_apis/build/status%2FCI%2FOvmfPkg%20-%20Ubuntu%20GCC%20-%20CI?branchName=master&jobName=Platform_CI&configuration=Platform_CI%20OVMF_X64_RELEASE
 .. |op64n| image:: https://dev.azure.com/tianocore/edk2-ci/_apis/build/status%2FCI%2FOvmfPkg%20-%20Windows%20VS%20-%20CI?branchName=master&jobName=Platform_CI&configuration=Platform_CI%20OVMF_X64_NOOPT
 .. |op64nu| image:: https://dev.azure.com/tianocore/edk2-ci/_apis/build/status%2FCI%2FOvmfPkg%20-%20Ubuntu%20GCC%20-%20CI?branchName=master&jobName=Platform_CI&configuration=Platform_CI%20OVMF_X64_NOOPT
-
-.. |op3264d| image:: https://dev.azure.com/tianocore/edk2-ci/_apis/build/status%2FCI%2FOvmfPkg%20-%20Windows%20VS%20-%20CI?branchName=master&jobName=Platform_CI&configuration=Platform_CI%20OVMF_IA32X64_DEBUG
-.. |op3264du| image:: https://dev.azure.com/tianocore/edk2-ci/_apis/build/status%2FCI%2FOvmfPkg%20-%20Ubuntu%20GCC%20-%20CI?branchName=master&jobName=Platform_CI&configuration=Platform_CI%20OVMF_IA32X64_DEBUG
-.. |op3264r| image:: https://dev.azure.com/tianocore/edk2-ci/_apis/build/status%2FCI%2FOvmfPkg%20-%20Windows%20VS%20-%20CI?branchName=master&jobName=Platform_CI&configuration=Platform_CI%20OVMF_IA32X64_RELEASE
-.. |op3264ru| image:: https://dev.azure.com/tianocore/edk2-ci/_apis/build/status%2FCI%2FOvmfPkg%20-%20Ubuntu%20GCC%20-%20CI?branchName=master&jobName=Platform_CI&configuration=Platform_CI%20OVMF_IA32X64_RELEASE
-.. |op3264n| image:: https://dev.azure.com/tianocore/edk2-ci/_apis/build/status%2FCI%2FOvmfPkg%20-%20Windows%20VS%20-%20CI?branchName=master&jobName=Platform_CI&configuration=Platform_CI%20OVMF_IA32X64_NOOPT
-.. |op3264nu| image:: https://dev.azure.com/tianocore/edk2-ci/_apis/build/status%2FCI%2FOvmfPkg%20-%20Ubuntu%20GCC%20-%20CI?branchName=master&jobName=Platform_CI&configuration=Platform_CI%20OVMF_IA32X64_NOOPT
-
-.. |op3264fd| image:: https://dev.azure.com/tianocore/edk2-ci/_apis/build/status%2FCI%2FOvmfPkg%20-%20Windows%20VS%20-%20CI?branchName=master&jobName=Platform_CI&configuration=Platform_CI%20OVMF_IA32X64_FULL_DEBUG
-.. |op3264fdu| image:: https://dev.azure.com/tianocore/edk2-ci/_apis/build/status%2FCI%2FOvmfPkg%20-%20Ubuntu%20GCC%20-%20CI?branchName=master&jobName=Platform_CI&configuration=Platform_CI%20OVMF_IA32X64_FULL_DEBUG
-.. |op3264fr| image:: https://dev.azure.com/tianocore/edk2-ci/_apis/build/status%2FCI%2FOvmfPkg%20-%20Windows%20VS%20-%20CI?branchName=master&jobName=Platform_CI&configuration=Platform_CI%20OVMF_IA32X64_FULL_RELEASE
-.. |op3264fru| image:: https://dev.azure.com/tianocore/edk2-ci/_apis/build/status%2FCI%2FOvmfPkg%20-%20Ubuntu%20GCC%20-%20CI?branchName=master&jobName=Platform_CI&configuration=Platform_CI%20OVMF_IA32X64_FULL_RELEASE
-.. |op3264fn| image:: https://dev.azure.com/tianocore/edk2-ci/_apis/build/status%2FCI%2FOvmfPkg%20-%20Windows%20VS%20-%20CI?branchName=master&jobName=Platform_CI&configuration=Platform_CI%20OVMF_IA32X64_FULL_NOOPT
-.. |op3264fnu| image:: https://dev.azure.com/tianocore/edk2-ci/_apis/build/status%2FCI%2FOvmfPkg%20-%20Ubuntu%20GCC%20-%20CI?branchName=master&jobName=Platform_CI&configuration=Platform_CI%20OVMF_IA32X64_FULL_NOOPT

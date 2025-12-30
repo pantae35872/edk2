@@ -1555,10 +1555,7 @@ InternalShellExecuteDevicePath (
     // If the image is not an app abort it.
     //
     if (LoadedImage->ImageCodeType != EfiLoaderCode) {
-      ShellPrintHiiEx (
-        -1,
-        -1,
-        NULL,
+      ShellPrintHiiDefaultEx (
         STRING_TOKEN (STR_SHELL_IMAGE_NOT_APP),
         ShellInfoObject.HiiHandle
         );
@@ -1623,8 +1620,6 @@ InternalShellExecuteDevicePath (
 
     Status = gBS->InstallProtocolInterface (&NewHandle, &gEfiShellParametersProtocolGuid, EFI_NATIVE_INTERFACE, &ShellParamsProtocol);
     ASSERT_EFI_ERROR (Status);
-
-    /// @todo initialize and install ShellInterface protocol on the new image for compatibility if - PcdGetBool(PcdShellSupportOldProtocols)
 
     //
     // now start the image and if the caller wanted the return code pass it to them...
@@ -2855,7 +2850,11 @@ EfiShellGetEnvEx (
           ; Node = (ENV_VAR_LIST *)GetNextNode (&gShellEnvVarList.Link, &Node->Link)
           )
     {
-      ASSERT (Node->Key != NULL);
+      if (Node->Key == NULL) {
+        ASSERT (FALSE);
+        continue;
+      }
+
       Size += StrSize (Node->Key);
     }
 
@@ -3889,11 +3888,6 @@ CreatePopulateInstallShellProtocol (
                     );
   }
 
-  if (PcdGetBool (PcdShellSupportOldProtocols)) {
-    /// @todo support ShellEnvironment2
-    /// @todo do we need to support ShellEnvironment (not ShellEnvironment2) also?
-  }
-
   if (!EFI_ERROR (Status)) {
     *NewShell = &mShellProtocol;
   }
@@ -4042,10 +4036,7 @@ InernalEfiShellStartMonitor (
                   EFI_OPEN_PROTOCOL_GET_PROTOCOL
                   );
   if (EFI_ERROR (Status)) {
-    ShellPrintHiiEx (
-      -1,
-      -1,
-      NULL,
+    ShellPrintHiiDefaultEx (
       STRING_TOKEN (STR_SHELL_NO_IN_EX),
       ShellInfoObject.HiiHandle
       );

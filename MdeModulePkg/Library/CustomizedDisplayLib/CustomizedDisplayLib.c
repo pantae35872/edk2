@@ -40,7 +40,7 @@ Statement
 **/
 
 /**
-  This funtion defines Page Frame and Backgroud.
+  This function defines Page Frame and Backgroud.
 
   Based on the above layout, it will be responsible for HeaderHeight, FooterHeight,
   StatusBarHeight and Backgroud. And, it will reserve Screen for Statement.
@@ -64,7 +64,7 @@ DisplayPageFrame (
     return EFI_INVALID_PARAMETER;
   }
 
-  Status = ScreenDiemensionInfoValidate (FormData);
+  Status = ScreenDimensionInfoValidate (FormData);
   if (EFI_ERROR (Status)) {
     return Status;
   }

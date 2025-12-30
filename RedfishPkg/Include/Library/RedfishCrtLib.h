@@ -34,23 +34,17 @@
 // 64-bit. Since using 'long long' works fine on GCC too, just do that.
 //
 #define SIXTY_FOUR_BIT
-#elif defined (MDE_CPU_IA32) || defined (MDE_CPU_ARM) || defined (MDE_CPU_EBC)
+#elif defined (MDE_CPU_IA32) || defined (MDE_CPU_EBC)
 #define THIRTY_TWO_BIT
 #endif
 
 //
 // Map all va_xxxx elements to VA_xxx defined in MdePkg/Include/Base.h
 //
-#if !defined (__CC_ARM) // if va_list is not already defined
 #define va_list   VA_LIST
 #define va_arg    VA_ARG
 #define va_start  VA_START
 #define va_end    VA_END
-#else // __CC_ARM
-#define va_start(Marker, Parameter)  __va_start(Marker, Parameter)
-#define va_arg(Marker, TYPE)         __va_arg(Marker, TYPE)
-#define va_end(Marker)               ((void)0)
-#endif
 
 //
 // Definitions for global constants used by CRT library routines
@@ -69,14 +63,17 @@
 //
 // Basic types mapping
 //
-typedef UINTN    size_t;
-typedef INTN     ssize_t;
-typedef INT32    time_t;
-typedef INT32    int32_t;
-typedef UINT32   uint32_t;
-typedef UINT16   uint16_t;
-typedef UINT8    uint8_t;
-typedef BOOLEAN  bool;
+typedef UINTN   size_t;
+typedef INTN    ssize_t;
+typedef INT32   time_t;
+typedef INT32   int32_t;
+typedef UINT32  uint32_t;
+typedef UINT16  uint16_t;
+typedef UINT8   uint8_t;
+// In C23, bool is a built-in type
+#if __STDC_VERSION__ < 202311L
+typedef BOOLEAN bool;
+#endif
 
 #define true   (1 == 1)
 #define false  (1 == 0)

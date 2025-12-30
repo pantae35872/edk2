@@ -80,6 +80,10 @@ The Dynamic Tables Framework implements the following ACPI table generators:
             Configuration Manager and builds the SPMI table.
   - FACS  : The FACS generator collates the FACS information from the
             Configuration Manager and builds the FACS table.
+  - CEDT  : The CEDT generator collates the CEDT information from the
+            Configuration Manager and builds the CEDT table.
+  - SLIT  : The SLIT generator collates the SLIT information from the
+            Configuration Manager and builds the SLIT table.
 */
 
 /** The ACPI_TABLE_GENERATOR_ID type describes ACPI table generator ID.
@@ -107,6 +111,7 @@ typedef enum StdAcpiTableId {
   EStdAcpiTableIdSsdtCmn600,                    ///< SSDT Cmn-600 Generator
   EStdAcpiTableIdSsdtCpuTopology,               ///< SSDT Cpu Topology
   EStdAcpiTableIdSsdtPciExpress,                ///< SSDT Pci Express Generator
+  EStdAcpiTableIdSsdtPlicAplic,                 ///< SSDT Plic/Aplic Generator
   EStdAcpiTableIdPcct,                          ///< PCCT Generator
   EStdAcpiTableIdTpm2,                          ///< TPM2 Generator
   EStdAcpiTableIdWsmt,                          ///< WSMT Generator
@@ -114,6 +119,9 @@ typedef enum StdAcpiTableId {
   EStdAcpiTableIdSsdtHpet,                      ///< SSDT HPET Generator
   EStdAcpiTableIdSpmi,                          ///< SPMI Generator
   EStdAcpiTableIdFacs,                          ///< FACS Generator
+  EStdAcpiTableIdCedt,                          ///< CEDT Generator
+  EStdAcpiTableIdSlit,                          ///< SLIT Generator
+  EStdAcpiTableIdRhct,                          ///< RHCT Generator
   EStdAcpiTableIdMax
 } ESTD_ACPI_TABLE_ID;
 

@@ -102,11 +102,6 @@ PlatformQemuUc32BaseInitialization (
   }
 }
 
-typedef VOID (*E820_SCAN_CALLBACK) (
-  EFI_E820_ENTRY64       *E820Entry,
-  EFI_HOB_PLATFORM_INFO  *PlatformInfoHob
-  );
-
 STATIC
 EFI_STATUS
 PlatformScanE820Tdx (
@@ -372,6 +367,10 @@ PlatformScanE820 (
   UINTN                 FwCfgSize;
   EFI_E820_ENTRY64      E820Entry;
   UINTN                 Processed;
+
+  if (PlatformIgvmMemoryMapCheck ()) {
+    return PlatformIgvmScanE820 (Callback, PlatformInfoHob);
+  }
 
   if (PlatformInfoHob->HostBridgeDevId == CLOUDHV_DEVICE_ID) {
     return PlatformScanE820Pvh (Callback, PlatformInfoHob);
@@ -1241,6 +1240,8 @@ PlatformQemuInitializeRam (
 
   DEBUG ((DEBUG_INFO, "%a called\n", __func__));
 
+  PlatformIgvmParamReserve ();
+
   //
   // Determine total memory size available
   //
@@ -1500,6 +1501,20 @@ PlatformQemuInitializeRamForS3 (
       BuildMemoryAllocationHob (
         (EFI_PHYSICAL_ADDRESS)(UINTN)FixedPcdGet32 (PcdOvmfWorkAreaBase),
         (UINT64)(UINTN)FixedPcdGet32 (PcdOvmfWorkAreaSize),
+        PlatformInfoHob->S3Supported ? EfiACPIMemoryNVS : EfiBootServicesData
+        );
+    }
+
+    if (FixedPcdGet32 (PcdOvmfEarlyMemDebugLogSize) != 0) {
+      //
+      // Reserve the Early Memory Debug Log buffer
+      //
+      // Since this memory range will be used on S3 resume, it must be
+      // reserved as ACPI NVS.
+      //
+      BuildMemoryAllocationHob (
+        (EFI_PHYSICAL_ADDRESS)(UINTN)FixedPcdGet32 (PcdOvmfEarlyMemDebugLogBase),
+        (UINT64)(UINTN)FixedPcdGet32 (PcdOvmfEarlyMemDebugLogSize),
         PlatformInfoHob->S3Supported ? EfiACPIMemoryNVS : EfiBootServicesData
         );
     }

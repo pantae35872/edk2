@@ -2456,11 +2456,11 @@ X509GetSignatureAlgorithm (
   @param[in, out] ExtensionDataSize Extension bytes size.
 
   @retval TRUE                     The certificate Extension data retrieved successfully.
+  @retval TRUE                     The Certificate Extension is found, but the oid extension is not found.
   @retval FALSE                    If Cert is NULL.
                                    If ExtensionDataSize is NULL.
                                    If ExtensionData is not NULL and *ExtensionDataSize is 0.
                                    If Certificate is invalid.
-  @retval FALSE                    If no Extension entry match Oid.
   @retval FALSE                    If the ExtensionData is NULL. The required buffer size
                                    is returned in the ExtensionDataSize parameter.
   @retval FALSE                    The operation is not supported.
@@ -4166,6 +4166,27 @@ TlsSetVerifyHost (
 }
 
 /**
+  Set the specified server name in Server/Client.
+
+  @param[in]  Tls           Pointer to the TLS object.
+  @param[in]  SslCtx        Pointer to the SSL object.
+  @param[in]  HostName      The specified server name to be set.
+
+  @retval  EFI_SUCCESS      The Server Name was set successfully.
+  @retval  EFI_UNSUPPORTED  Failed to set the Server Name.
+**/
+EFI_STATUS
+EFIAPI
+TlsSetServerName (
+  VOID   *Tls,
+  VOID   *SslCtx,
+  CHAR8  *HostName
+  )
+{
+  CALL_CRYPTO_SERVICE (TlsSetServerName, (Tls, SslCtx, HostName), EFI_UNSUPPORTED);
+}
+
+/**
   Sets a TLS/SSL session ID to be used during TLS/SSL connect.
 
   This function sets a session ID to be used when the TLS/SSL connection is
@@ -4379,6 +4400,30 @@ TlsSetEcCurve (
   )
 {
   CALL_CRYPTO_SERVICE (TlsSetSignatureAlgoList, (Tls, Data, DataSize), EFI_UNSUPPORTED);
+}
+
+/**
+  Set the Tls security level.
+
+  This function Set the Tls security level.
+  If Tls is NULL, nothing is done.
+
+  @param[in]  Tls                Pointer to the TLS object.
+  @param[in]  Level              Tls Security level need to set.
+
+  @retval  EFI_SUCCESS           The Tls security level was set successfully.
+  @retval  EFI_INVALID_PARAMETER The parameters are invalid.
+  @retval  EFI_UNSUPPORTED       The requested TLS set security level is not supported.
+
+**/
+EFI_STATUS
+EFIAPI
+TlsSetSecurityLevel (
+  IN VOID   *Tls,
+  IN UINT8  Level
+  )
+{
+  CALL_CRYPTO_SERVICE (TlsSetSecurityLevel, (Tls, Level), EFI_UNSUPPORTED);
 }
 
 /**

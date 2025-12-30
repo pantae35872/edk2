@@ -22,8 +22,6 @@
 [Includes]
   Include
   Test/Mock/Include
-
-[Includes.Common.Private]
   DeviceSecurity/SpdmLib/Include
   DeviceSecurity/SpdmLib/libspdm/include
 
@@ -104,6 +102,10 @@
   ##  @libraryclass Perform SPDM (following SPDM spec) and measure data to TPM (following TCG PFP spec).
   ##
   SpdmSecurityLib|Include/Library/SpdmSecurityLib.h
+
+  ##  @libraryclass  Provides measurement interface for PeilessSec.
+  #
+  PeilessSecMeasureLib|Include/Library/PeilessSecMeasureLib.h
 
 [Guids]
   ## Security package token space guid.

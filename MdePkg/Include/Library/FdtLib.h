@@ -188,6 +188,9 @@ typedef struct {
        Node >= 0;                            \
        Node = FdtNextSubnode (Fdt, Node))
 
+#define FdtSetPropString(Fdt, NodeOffset, Name, String) \
+  FdtSetProp ((Fdt), (NodeOffset), (Name), (String), AsciiStrLen (String) + 1)
+
 /**
   Convert UINT16 data of the FDT blob to little-endian
 
@@ -501,7 +504,7 @@ FdtParentOffset (
 **/
 INT32
 EFIAPI
-FdtNodeOffsetByPropertyValue (
+FdtNodeOffsetByPropValue (
   IN CONST VOID   *Fdt,
   IN INT32        StartOffset,
   IN CONST CHAR8  *PropertyName,
@@ -711,6 +714,22 @@ FdtAddSubnode (
   );
 
 /**
+  Delete a node (subtree)
+
+  @param[in] Fdt            The pointer to FDT blob.
+  @param[in] NodeOffset     The offset to the node (subtree) to delete.
+
+  @return  Zero for successfully, otherwise failed.
+
+ **/
+INT32
+EFIAPI
+FdtDelNode (
+  IN VOID   *Fdt,
+  IN INT32  NodeOffset
+  );
+
+/**
   Add or modify a property in the given node.
 
   @param[in] Fdt            The pointer to FDT blob.
@@ -845,6 +864,25 @@ FdtGetName (
   );
 
 /**
+  Determine the full path of a node.
+
+  @param[in] Fdt            The pointer to FDT blob.
+  @param[in] NodeOffset     Offset of node to check.
+  @param[in] Buffer         The pointer to allocate a pool for FDT blob.
+  @param[in] BufferSize     The BufferSize to the pool size.
+
+  @return 0 on success, or negative error code.
+**/
+INT32
+EFIAPI
+FdtGetPath (
+  IN VOID    *Fdt,
+  IN INT32   NodeOffset,
+  IN VOID    *Buffer,
+  IN UINT32  BufferSize
+  );
+
+/**
   FdtNodeDepth() finds the depth of a given node.  The root node
   has depth 0, its immediate subnodes depth 1 and so forth.
 
@@ -903,6 +941,21 @@ FdtAddressCells (
 INT32
 EFIAPI
 FdtSizeCells (
+  IN CONST VOID  *Fdt,
+  IN INT32       NodeOffset
+  );
+
+/**
+  Retrieve the phandle of a given node
+
+  @param[in] Fdt            The pointer to FDT blob.
+  @param[in] NodeOffset     Offset of node to check.
+
+  @return Phandle of the node at NodeOffset, or 0 on error.
+**/
+UINT32
+EFIAPI
+FdtGetPhandle (
   IN CONST VOID  *Fdt,
   IN INT32       NodeOffset
   );

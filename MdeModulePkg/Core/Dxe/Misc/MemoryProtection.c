@@ -38,6 +38,7 @@ SPDX-License-Identifier: BSD-2-Clause-Patent
 #include <Guid/MemoryAttributesTable.h>
 
 #include <Protocol/FirmwareVolume2.h>
+#include <Protocol/MemoryAttribute.h>
 #include <Protocol/SimpleFileSystem.h>
 
 #include "DxeMain.h"
@@ -66,6 +67,8 @@ UINT32  mImageProtectionPolicy;
 extern LIST_ENTRY  mGcdMemorySpaceMap;
 
 STATIC LIST_ENTRY  mProtectedImageRecordList;
+
+EFI_MEMORY_ATTRIBUTE_PROTOCOL  *gMemoryAttributeProtocol;
 
 /**
   Get the image type.
@@ -196,8 +199,11 @@ SetUefiImageMemoryAttributes (
   UINT64                           FinalAttributes;
   UINT64                           CurrentAddress;
   UINT64                           CurrentLength;
+  UINT64                           ImageEnd;
+  UINT64                           DescEnd;
 
   CurrentAddress = BaseAddress;
+  ImageEnd       = BaseAddress + Length;
 
   // we loop here because we may have multiple memory space descriptors that overlap the requested range
   // this will definitely be the case for unprotecting an image, because that calls this function for the entire image,
@@ -216,11 +222,14 @@ SetUefiImageMemoryAttributes (
       return;
     }
 
-    // ensure that we only change the attributes for the range that we are interested in, not the entire descriptor
-    if (BaseAddress + Length > CurrentAddress + Descriptor.Length) {
-      CurrentLength = Descriptor.Length;
+    DescEnd = Descriptor.BaseAddress + Descriptor.Length;
+
+    // ensure that we only change the attributes for the range that we are interested in, not the entire descriptor, we
+    // may also be in the middle of a descriptor, so ensure our length is not larger than the descriptor length
+    if (ImageEnd > DescEnd) {
+      CurrentLength = DescEnd - CurrentAddress;
     } else {
-      CurrentLength = BaseAddress + Length - CurrentAddress;
+      CurrentLength = ImageEnd - CurrentAddress;
     }
 
     // Preserve the existing caching and virtual attributes, but remove the hardware access bits
@@ -272,7 +281,7 @@ SetUefiImageMemoryAttributes (
       ASSERT_EFI_ERROR (Status);
     }
 
-    if (((FinalAttributes & (EFI_MEMORY_ATTRIBUTE_MASK | EFI_CACHE_ATTRIBUTE_MASK)) == 0) && (gCpu != NULL)) {
+    if (((FinalAttributes & (EFI_MEMORY_ACCESS_MASK | EFI_CACHE_ATTRIBUTE_MASK)) == 0) && (gCpu != NULL)) {
       // if the passed hardware attributes are 0, CoreSetMemorySpaceAttributes() will not call into the CPU Arch protocol
       // to set the attributes, so we need to do it manually here. This can be the case when we are unprotecting an
       // image if no caching attributes are set. If gCpu has not been populated yet, we'll still have updated the GCD
@@ -291,10 +300,9 @@ SetUefiImageMemoryAttributes (
       }
     }
 
-    // we have CurrentLength, also, but that is just to handle the final descriptor case where we might take only
-    // part of a descriptor, so we can use Descriptor.Length here to move to the next descriptor, which for the final
-    // descriptor will exit the loop, regardless of whether we truncated or not
-    CurrentAddress += Descriptor.Length;
+    // we may have started in the middle of a descriptor, so we need to move to the beginning of the next descriptor,
+    // or the end of the image, whichever is smaller
+    CurrentAddress += CurrentLength;
   }
 }
 
@@ -1029,6 +1037,37 @@ DisableNullDetectionAtTheEndOfDxe (
 }
 
 /**
+  A notification for the Memory Attribute Protocol Installation.
+
+  @param[in]  Event                 Event whose notification function is being invoked.
+  @param[in]  Context               Pointer to the notification function's context,
+                                    which is implementation-dependent.
+
+**/
+VOID
+EFIAPI
+MemoryAttributeProtocolNotify (
+  IN EFI_EVENT  Event,
+  IN VOID       *Context
+  )
+{
+  EFI_STATUS  Status;
+
+  Status = gBS->LocateProtocol (&gEfiMemoryAttributeProtocolGuid, NULL, (VOID **)&gMemoryAttributeProtocol);
+
+  if (EFI_ERROR (Status)) {
+    DEBUG ((
+      DEBUG_INFO,
+      "%a - Unable to locate the memory attribute protocol! Status = %r\n",
+      __func__,
+      Status
+      ));
+  }
+
+  CoreCloseEvent (Event);
+}
+
+/**
   Initialize Memory Protection support.
 **/
 VOID
@@ -1078,6 +1117,35 @@ CoreInitializeMemoryProtection (
              &Registration
              );
   ASSERT_EFI_ERROR (Status);
+
+  // Register an event to populate the memory attribute protocol
+  Status = CoreCreateEvent (
+             EVT_NOTIFY_SIGNAL,
+             TPL_CALLBACK,
+             MemoryAttributeProtocolNotify,
+             NULL,
+             &Event
+             );
+
+  // if we fail to create the event or the protocol notify, we should still continue, we won't be able to query the
+  // memory attributes on FreePages(), so we may encounter a driver or bootloader that has not set attributes back to
+  // RW, but this matches the state of the world before this protocol was introduced, so it is not a regression.
+  if (EFI_ERROR (Status)) {
+    DEBUG ((DEBUG_ERROR, "%a - Failed to create event for the Memory Attribute Protocol notification: %r\n", __func__, Status));
+    ASSERT_EFI_ERROR (Status);
+  }
+
+  // Register for protocol notification
+  Status = CoreRegisterProtocolNotify (
+             &gEfiMemoryAttributeProtocolGuid,
+             Event,
+             &Registration
+             );
+
+  if (EFI_ERROR (Status)) {
+    DEBUG ((DEBUG_ERROR, "%a - Failed to register for the Memory Attribute Protocol notification: %r\n", __func__, Status));
+    ASSERT_EFI_ERROR (Status);
+  }
 
   //
   // Register a callback to disable NULL pointer detection at EndOfDxe

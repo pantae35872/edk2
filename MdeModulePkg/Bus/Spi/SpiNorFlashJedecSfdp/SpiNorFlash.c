@@ -20,6 +20,8 @@
 /**
   Fill Write Buffer with Opcode, Address, Dummy Bytes, and Data.
 
+  If WriteBytes is non-zero, WriteBuffer must be a valid buffer.
+
   @param[in]    Instance               The instance of SPI_NOR_FLASH
   @param[in]    Opcode                 Opcode for transaction
   @param[in]    DummyBytes             The dummy bytes send to SPI flash device
@@ -48,11 +50,22 @@ FillWriteBuffer (
   UINT32  Index;
   UINT8   SfdpAddressBytes;
 
-  SfdpAddressBytes = (UINT8)Instance->SfdpBasicFlash->AddressBytes;
+  if ((Instance == NULL) || ((WriteBytes != 0) && (WriteBuffer == NULL))) {
+    ASSERT (Instance != NULL);
+    ASSERT (WriteBytes == 0 || WriteBuffer != NULL);
+    return 0;
+  }
+
+  if (Instance->SfdpBasicFlash == NULL) {
+    SfdpAddressBytes = 0;
+  } else {
+    SfdpAddressBytes = (UINT8)Instance->SfdpBasicFlash->AddressBytes;
+  }
 
   // Copy Opcode into Write Buffer
   Instance->SpiTransactionWriteBuffer[0] = Opcode;
   Index                                  = 1;
+  AddressSize                            = 0;
   if (UseAddress) {
     if (AddressBytesSupported == SPI_ADDR_3BYTE_ONLY) {
       if (SfdpAddressBytes != 0) {

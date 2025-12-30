@@ -21,7 +21,7 @@
 /// the EDK II Crypto Protocol is extended, this version define must be
 /// increased.
 ///
-#define EDKII_CRYPTO_VERSION  17
+#define EDKII_CRYPTO_VERSION  19
 
 ///
 /// EDK II Crypto Protocol forward declaration
@@ -2577,11 +2577,11 @@ BOOLEAN
   @param[in, out] ExtensionDataSize Extension bytes size.
 
   @retval TRUE                     The certificate Extension data retrieved successfully.
+  @retval TRUE                     The Certificate Extension is found, but the oid extension is not found.
   @retval FALSE                    If Cert is NULL.
                                    If ExtensionDataSize is NULL.
                                    If ExtensionData is not NULL and *ExtensionDataSize is 0.
                                    If Certificate is invalid.
-  @retval FALSE                    If no Extension entry match Oid.
   @retval FALSE                    If the ExtensionData is NULL. The required buffer size
                                    is returned in the ExtensionDataSize parameter.
   @retval FALSE                    The operation is not supported.
@@ -3949,6 +3949,44 @@ EFI_STATUS
 (EFIAPI *EDKII_CRYPTO_TLS_SET_CERT_REVOCATION_LIST)(
   IN     VOID                     *Data,
   IN     UINTN                    DataSize
+  );
+
+/**
+  Set the specified server name in Server/Client.
+
+  @param[in]  Tls           Pointer to the TLS object.
+  @param[in]  SslCtx        Pointer to the SSL object.
+  @param[in]  HostName      The specified server name to be set.
+
+  @retval  EFI_SUCCESS      The Server Name was set successfully.
+  @retval  EFI_UNSUPPORTED  Failed to set the Server Name.
+**/
+typedef
+EFI_STATUS
+(EFIAPI *EDKII_CRYPTO_TLS_SET_SERVER_NAME)(
+  IN     VOID            *Tls,
+  IN     VOID            *SslCtx,
+  IN     CHAR8           *HostName
+  );
+
+/**
+  Set the Tls security level.
+
+  This function Set the Tls security level.
+  If Tls is NULL, nothing is done.
+
+  @param[in]  Tls                Pointer to the TLS object.
+  @param[in]  Level              The Tls Security level need to set.
+
+  @retval  EFI_SUCCESS           The Tls security level was set successfully.
+  @retval  EFI_INVALID_PARAMETER The parameters are invalid.
+
+**/
+typedef
+EFI_STATUS
+(EFIAPI *EDKII_CRYPTO_TLS_SET_SECURITY_LEVEL)(
+  IN VOID    *Tls,
+  IN UINT8   Level
   );
 
 /**
@@ -5710,6 +5748,9 @@ struct _EDKII_CRYPTO_PROTOCOL {
   EDKII_CRYPTO_PKCS1V2_DECRYPT                        Pkcs1v2Decrypt;
   EDKII_CRYPTO_RSA_OAEP_ENCRYPT                       RsaOaepEncrypt;
   EDKII_CRYPTO_RSA_OAEP_DECRYPT                       RsaOaepDecrypt;
+  /// TLS Set (Continued)
+  EDKII_CRYPTO_TLS_SET_SERVER_NAME                    TlsSetServerName;
+  EDKII_CRYPTO_TLS_SET_SECURITY_LEVEL                 TlsSetSecurityLevel;
 };
 
 extern GUID  gEdkiiCryptoProtocolGuid;
